@@ -16,10 +16,10 @@ function OfferCard({ offer }: { offer: Offer }) {
   const highlighted = Boolean(offer.badge);
   return (
     <div
-      className={`flex h-full flex-col gap-3.5 rounded-2xl border bg-white p-5 shadow-[0_1px_2px_rgba(26,26,26,0.04),0_4px_14px_rgba(26,26,26,0.05)] sm:gap-4 sm:p-6 ${
+      className={`flex h-full flex-col gap-3.5 rounded-2xl border border-border bg-white p-5 shadow-[0_1px_2px_rgba(26,26,26,0.04),0_4px_14px_rgba(26,26,26,0.05)] sm:gap-4 sm:p-6 ${
         highlighted
-          ? "border-2 border-brand-red sm:shadow-[0_1px_2px_rgba(26,26,26,0.04),0_6px_20px_rgba(26,26,26,0.06)]"
-          : "border-border"
+          ? "sm:shadow-[0_1px_2px_rgba(26,26,26,0.04),0_6px_20px_rgba(26,26,26,0.06)]"
+          : ""
       }`}
     >
       {offer.badge && <SuccessBadge>{offer.badge}</SuccessBadge>}

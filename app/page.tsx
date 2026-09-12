@@ -12,7 +12,7 @@ export default function AccueilPage() {
 
   return (
     <>
-      <Header showServicePhone />
+      <Header />
       <main className="flex flex-1 flex-col">
         <div className="grid gap-8 bg-cream px-5 py-8 sm:grid-cols-[1fr_520px] sm:items-center sm:gap-16 sm:px-10 sm:py-16">
           <div className="flex flex-col gap-4 sm:gap-6">
