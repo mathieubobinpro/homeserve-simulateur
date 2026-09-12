@@ -9,12 +9,12 @@ Point d'entrée : un QR code scanné sur smartphone après une intervention de
 dépannage, ou un lien reçu par email/SMS à J+2.
 
 **Dashboard Formspree de collecte des leads :**
-`https://formspree.io/forms/[FORM_ID]/submissions`
-_(à remplacer par l'URL réelle une fois le formulaire Formspree créé — ce
-lien permet à HomeServe de consulter les leads en temps réel, sans accès
+https://formspree.io/forms/mnpqyrww/submissions
+_(accessible au compte Formspree propriétaire du formulaire — ce lien
+permet à HomeServe de consulter les leads en temps réel, sans accès
 technique nécessaire, et de les exporter en CSV)._
 
-**URL de production Vercel :** `https://[à-remplacer].vercel.app`
+**URL de production Vercel :** https://homeserve-simulateur.vercel.app
 
 > Ce projet est un POC : la collecte de leads passe par
 > [Formspree](https://formspree.io) plutôt que par une intégration Google
@@ -106,6 +106,17 @@ L'envoi des leads se fait exclusivement côté serveur, via
 > de confirmation.
 
 ## Déploiement sur Vercel
+
+Le projet `homeserve-simulateur` est déjà créé sur Vercel et déployé en
+production (déploiement fait depuis la CLI, sans connexion GitHub
+automatique). Pour que chaque `git push` déclenche un déploiement
+automatique, connecter le dépôt depuis le dashboard Vercel :
+
+**Project → Settings → Git → Connect Git Repository**, puis sélectionner
+`mathieubobinpro/homeserve-simulateur` (autoriser l'app GitHub de Vercel si
+demandé).
+
+Pour repartir de zéro sur un autre compte Vercel :
 
 1. Pousser le dépôt sur GitHub.
 2. Importer le dépôt dans [Vercel](https://vercel.com/new) — Next.js est
