@@ -14,11 +14,10 @@ export default function AccueilPage() {
       <main className="flex flex-1 flex-col justify-center gap-8 px-6 py-10">
         <div className="flex flex-col gap-4 text-center">
           <p className="text-sm font-bold uppercase tracking-wide text-brand-red">
-            Encore une panne ?
+            Votre chauffage vous lâche encore ?
           </p>
           <h1 className="text-[32px] font-extrabold leading-tight text-ink sm:text-4xl">
-            Et si on regardait les alternatives plutôt que de réparer une fois
-            de plus ?
+            Et si remplacer coûtait moins cher que réparer ?
           </h1>
           <p className="text-base leading-relaxed text-gray-mid">
             En 30 secondes, découvrez les solutions de remplacement adaptées
@@ -31,13 +30,7 @@ export default function AccueilPage() {
           Découvrir mes options →
         </CTAButton>
 
-        <ReassuranceBadges
-          items={[
-            "Sans engagement",
-            "Réponse immédiate",
-            "Déjà client HomeServe",
-          ]}
-        />
+        <ReassuranceBadges items={["Sans engagement", "Réponse immédiate"]} />
       </main>
     </>
   );

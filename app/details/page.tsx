@@ -70,6 +70,24 @@ export default function DetailsPage() {
         </section>
 
         <section className="flex flex-col gap-3">
+          <h2 className="text-base font-bold text-ink">
+            Combien d&apos;interventions de dépannage avez-vous eu sur cet
+            équipement ces 2 dernières années ?
+          </h2>
+          <div className="flex flex-col gap-3">
+            {FREQUENCE_OPTIONS.map((option) => (
+              <SelectableCard
+                key={option.value}
+                selected={frequenceIntervention === option.value}
+                onClick={() => setFrequenceIntervention(option.value)}
+              >
+                {option.label}
+              </SelectableCard>
+            ))}
+          </div>
+        </section>
+
+        <section className="flex flex-col gap-3">
           <h2 className="text-base font-bold text-ink">Votre code postal</h2>
           <FormField
             id="codePostal"
@@ -87,24 +105,6 @@ export default function DetailsPage() {
                 : undefined
             }
           />
-        </section>
-
-        <section className="flex flex-col gap-3">
-          <h2 className="text-base font-bold text-ink">
-            Combien d&apos;interventions de dépannage avez-vous eu sur cet
-            équipement ces 2 dernières années ?
-          </h2>
-          <div className="flex flex-col gap-3">
-            {FREQUENCE_OPTIONS.map((option) => (
-              <SelectableCard
-                key={option.value}
-                selected={frequenceIntervention === option.value}
-                onClick={() => setFrequenceIntervention(option.value)}
-              >
-                {option.label}
-              </SelectableCard>
-            ))}
-          </div>
         </section>
 
         <CTAButton
