@@ -19,11 +19,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="fr" className={`${inter.variable} h-full`}>
-      <body className="min-h-full bg-cream text-ink antialiased">
+      <body className="min-h-full bg-white text-ink antialiased">
         <SimulatorProvider>
-          <div className="mx-auto flex min-h-screen max-w-md flex-col sm:max-w-lg">
-            {children}
-          </div>
+          <div className="flex min-h-screen flex-col">{children}</div>
         </SimulatorProvider>
       </body>
     </html>

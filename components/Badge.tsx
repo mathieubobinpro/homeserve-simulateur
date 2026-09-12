@@ -4,10 +4,9 @@ interface ReassuranceBadgesProps {
 
 export function ReassuranceBadges({ items }: ReassuranceBadgesProps) {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs font-medium text-gray-mid">
-      {items.map((item, index) => (
-        <span key={item} className="flex items-center gap-1">
-          {index > 0 && <span className="text-gray-mid">&middot;</span>}
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium text-gray-dark">
+      {items.map((item) => (
+        <span key={item} className="flex items-center gap-1.5">
           <CheckIcon />
           {item}
         </span>
