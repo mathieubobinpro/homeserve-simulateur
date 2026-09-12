@@ -5,9 +5,6 @@ de dépannage) pour les orienter vers des alternatives de remplacement de
 leur équipement de chauffage vieillissant, avec coût estimé, économies
 projetées et aides mobilisables le cas échéant.
 
-Point d'entrée : un QR code scanné sur smartphone après une intervention de
-dépannage, ou un lien reçu par email/SMS à J+2.
-
 **Dashboard Formspree de collecte des leads :**
 https://formspree.io/forms/mnpqyrww/submissions
 _(accessible au compte Formspree propriétaire du formulaire — ce lien
