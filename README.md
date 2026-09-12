@@ -8,13 +8,19 @@ projetées et aides mobilisables le cas échéant.
 Point d'entrée : un QR code scanné sur smartphone après une intervention de
 dépannage, ou un lien reçu par email/SMS à J+2.
 
-**Lien vers le Google Sheet de collecte des leads :**
-`https://docs.google.com/spreadsheets/d/[SHEET_ID]`
-_(à remplacer par l'URL réelle une fois le Sheet créé — ce lien permet à
-HomeServe de consulter les leads en temps réel directement dans le Sheet,
-sans accès technique nécessaire)._
+**Dashboard Formspree de collecte des leads :**
+`https://formspree.io/forms/[FORM_ID]/submissions`
+_(à remplacer par l'URL réelle une fois le formulaire Formspree créé — ce
+lien permet à HomeServe de consulter les leads en temps réel, sans accès
+technique nécessaire, et de les exporter en CSV)._
 
 **URL de production Vercel :** `https://[à-remplacer].vercel.app`
+
+> Ce projet est un POC : la collecte de leads passe par
+> [Formspree](https://formspree.io) plutôt que par une intégration Google
+> Sheets, pour éviter la mise en place d'un Service Account / d'un projet
+> Google Cloud. Migrer vers un stockage plus robuste (Google Sheets, base de
+> données) reste possible en ne touchant qu'à `lib/leads.ts`.
 
 ## Stack technique
 
@@ -22,7 +28,7 @@ sans accès technique nécessaire)._
 - Tailwind CSS v4
 - React Context pour le state partagé entre écrans (persisté en
   `sessionStorage` pour survivre à un rafraîchissement de page)
-- Google Sheets API (`googleapis`) pour la collecte des leads, appelée
+- [Formspree](https://formspree.io) pour la collecte des leads, appelé
   uniquement côté serveur
 
 ## Architecture des routes
@@ -35,7 +41,7 @@ sans accès technique nécessaire)._
 | `/resultat`         | Alternatives de remplacement + formulaire de contact             |
 | `/merci`            | Confirmation d'envoi                                             |
 | `/non-eligible`     | Écran alternatif pour les équipements hors périmètre (PAC air-air, électrique...) |
-| `/api/submit-lead`  | API Route serveur — écrit le lead dans Google Sheets             |
+| `/api/submit-lead`  | API Route serveur — envoie le lead à Formspree                   |
 
 Logique de navigation depuis `/equipement` :
 
@@ -46,11 +52,11 @@ Logique de navigation depuis `/equipement` :
 
 ```
 /app                        Routes Next.js (App Router)
-  /api/submit-lead/route.ts API Route serveur (écriture Google Sheets)
+  /api/submit-lead/route.ts API Route serveur (envoi du lead à Formspree)
 /components                 Composants réutilisables (Header, CTAButton, Card, Badge, FormField, LeadForm)
 /context                    SimulatorContext.tsx — state partagé entre écrans
 /lib
-  google-sheets.ts          Client Google Sheets (Service Account)
+  leads.ts                  Client Formspree (envoi des leads)
   offers.ts                 Données des offres (prix, économies, aides) — voir ci-dessous
   validation.ts             Validateurs email / téléphone / code postal
 /public                     Assets statiques
@@ -68,61 +74,36 @@ l'écran `/resultat`.
 ```bash
 npm install
 cp .env.example .env.local
-# puis renseigner .env.local avec les identifiants Google (voir ci-dessous)
+# puis renseigner .env.local avec l'identifiant du formulaire Formspree (voir ci-dessous)
 npm run dev
 ```
 
 L'application est disponible sur `http://localhost:3000`.
 
-## Configuration Google Sheets (collecte des leads)
+## Configuration Formspree (collecte des leads)
 
-L'écriture des leads se fait exclusivement côté serveur, via
-`app/api/submit-lead/route.ts` — les identifiants ne sont jamais exposés au
-navigateur.
+L'envoi des leads se fait exclusivement côté serveur, via
+`app/api/submit-lead/route.ts`.
 
-### 1. Créer le Google Sheet
+1. Créer un compte sur [formspree.io](https://formspree.io) (gratuit).
+2. Créer un nouveau formulaire (**+ New Form**).
+3. Récupérer son identifiant dans l'URL du formulaire :
+   `https://formspree.io/f/<FORMSPREE_FORM_ID>`
+4. Renseigner cet identifiant dans `.env.local` (en local) et dans les
+   paramètres du projet Vercel (en production) :
 
-Créer un Google Sheet vide. La ligne d'en-têtes (`Horodatage`, `Nom`,
-`Email`, `Téléphone`, `Code postal`, `Équipement`, `Âge équipement`,
-`Fréquence intervention`, `Éligible`) est créée automatiquement par
-l'application au premier envoi si elle est absente.
+   ```
+   FORMSPREE_FORM_ID=<identifiant_du_formulaire>
+   ```
 
-Récupérer l'ID du Sheet dans son URL :
-`https://docs.google.com/spreadsheets/d/<GOOGLE_SHEET_ID>/edit`
+5. Chaque lead envoyé apparaît dans le dashboard Formspree du formulaire
+   (**Submissions**), avec export CSV possible, et déclenche une
+   notification email à l'adresse du compte Formspree.
 
-### 2. Créer un Service Account Google
-
-1. Aller sur [Google Cloud Console](https://console.cloud.google.com/).
-2. Créer un projet (ou en réutiliser un existant) et activer l'**API Google Sheets**.
-3. Créer un **Service Account** (IAM & Admin → Comptes de service).
-4. Générer une **clé JSON** pour ce compte de service et la conserver en
-   lieu sûr (elle ne doit jamais être committée dans le dépôt).
-
-### 3. Partager le Sheet avec le Service Account
-
-Ouvrir le Google Sheet créé à l'étape 1, cliquer sur **Partager**, et
-ajouter l'email du Service Account (ex. `xxx@xxx.iam.gserviceaccount.com`)
-en tant qu'**éditeur**.
-
-### 4. Configurer les variables d'environnement
-
-Dans `.env.local` (en local) et dans les paramètres du projet Vercel (en
-production) :
-
-```
-GOOGLE_SHEET_ID=<id_de_la_feuille>
-GOOGLE_SERVICE_ACCOUNT_EMAIL=<email_du_service_account>
-GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY=<clé_privée_du_json>
-```
-
-La clé privée du JSON contient des retours à la ligne (`\n`) : lors de la
-saisie dans Vercel, coller la valeur telle quelle (avec des `\n` littéraux)
-— le code se charge de les convertir en vrais retours à la ligne.
-
-> En cas d'échec de l'écriture dans le Sheet (identifiants manquants ou
-> invalides, quota dépassé, etc.), l'utilisateur n'est jamais bloqué :
-> l'erreur est loguée côté serveur et le parcours se poursuit normalement
-> vers l'écran de confirmation.
+> En cas d'échec de l'envoi à Formspree (identifiant manquant ou invalide,
+> quota dépassé, etc.), l'utilisateur n'est jamais bloqué : l'erreur est
+> loguée côté serveur et le parcours se poursuit normalement vers l'écran
+> de confirmation.
 
 ## Déploiement sur Vercel
 
@@ -130,7 +111,7 @@ saisie dans Vercel, coller la valeur telle quelle (avec des `\n` littéraux)
 2. Importer le dépôt dans [Vercel](https://vercel.com/new) — Next.js est
    détecté automatiquement, aucune configuration supplémentaire n'est
    nécessaire.
-3. Renseigner les 3 variables d'environnement ci-dessus dans les
+3. Renseigner la variable d'environnement `FORMSPREE_FORM_ID` dans les
    paramètres du projet Vercel (Settings → Environment Variables).
 4. Déployer.
 

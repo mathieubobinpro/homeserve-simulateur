@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { appendLeadToSheet } from "@/lib/google-sheets";
+import { submitLead } from "@/lib/leads";
 import {
   isValidEmail,
   isValidFrenchPhone,
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await appendLeadToSheet({
+    await submitLead({
       nom,
       email,
       telephone,
@@ -91,9 +91,9 @@ export async function POST(request: Request) {
       eligible,
     });
   } catch (error) {
-    // On ne bloque jamais l'utilisateur si l'écriture Google Sheets échoue :
+    // On ne bloque jamais l'utilisateur si l'envoi vers Formspree échoue :
     // on logue côté serveur et on laisse le parcours se poursuivre vers /merci.
-    console.error("[submit-lead] Échec de l'écriture dans Google Sheets", error);
+    console.error("[submit-lead] Échec de l'envoi du lead à Formspree", error);
   }
 
   return NextResponse.json({ ok: true });
