@@ -23,10 +23,10 @@ export default function FormField({
       )}
       <input
         id={id}
-        className={`rounded-xl border bg-white px-4 py-3 text-base text-ink outline-none transition-colors placeholder:text-gray-400 ${
+        className={`w-full rounded-[10px] border-[1.5px] bg-white px-4 py-3.5 text-base font-medium text-ink outline-none transition-colors placeholder:text-gray-400 ${
           error
             ? "border-brand-red"
-            : "border-gray-300 focus:border-brand-red"
+            : "border-border-strong focus:border-brand-red focus:shadow-[0_0_0_3px_rgba(232,68,44,0.15)]"
         } ${className}`}
         {...rest}
       />

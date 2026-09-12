@@ -6,11 +6,18 @@
  */
 @theme {
   --color-cream: #fff1e4;
+  --color-warm-white: #faf7f5;
   --color-brand-red: #e8442c;
   --color-brand-red-dark: #c6341e;
+  --color-brand-red-light: #fdece8;
   --color-ink: #1a1a1a;
+  --color-gray-dark: #4a4a4a;
   --color-gray-mid: #6b6b6b;
+  --color-neutral-icon: #f4f1ee;
+  --color-border: #ece7e2;
+  --color-border-strong: #d8d2cc;
   --color-success: #2e7d32;
+  --color-success-text: #1e5a22;
   --color-success-light: #eaf5ea;
   --font-sans: var(--font-inter), "Helvetica Neue", Arial, sans-serif;
 }
@@ -20,7 +27,7 @@ html {
 }
 
 body {
-  background: var(--color-cream);
+  background: #fff;
   color: var(--color-ink);
   font-family: var(--font-sans);
 }
