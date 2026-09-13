@@ -13,6 +13,10 @@ technique nécessaire, et de les exporter en CSV)._
 
 **URL de production Vercel :** https://homeserve-simulateur.vercel.app
 
+**Dashboard PostHog (parcours utilisateur) :** https://us.posthog.com
+_(région US Cloud, compte propriétaire du projet — voir la section
+Configuration PostHog ci-dessous pour le détail des événements trackés)._
+
 > Ce projet est un POC : la collecte de leads passe par
 > [Formspree](https://formspree.io) plutôt que par une intégration Google
 > Sheets, pour éviter la mise en place d'un Service Account / d'un projet
@@ -112,11 +116,17 @@ Le suivi analytics est entièrement côté client (`instrumentation-client.ts`),
 sans clé secrète — `NEXT_PUBLIC_POSTHOG_KEY` est une clé de projet publique,
 prévue pour être exposée au navigateur (comme un ID Google Analytics).
 
+**Déjà configuré** : un projet PostHog (région US Cloud) existe et sa clé
+est renseignée sur les 3 environnements Vercel (Production / Preview /
+Development). Pour retrouver les identifiants ou les faire pointer vers un
+autre projet :
+
 1. Créer un compte sur [posthog.com](https://posthog.com) (offre gratuite
-   suffisante pour un POC) et un projet.
-2. Choisir la région d'hébergement du projet — **EU recommandé** pour un
-   produit destiné à des clients français (conformité RGPD). Récupérer :
-   - la **clé de projet** (Project Settings → Project API Key)
+   suffisante pour un POC) et un projet — choisir la région d'hébergement
+   (EU ou US Cloud ; EU est en général préférable pour un produit destiné
+   à des clients français, question RGPD, mais ce projet utilise US Cloud).
+2. Récupérer dans Project Settings :
+   - la **clé de projet** (Project API Key)
    - l'**URL de l'API** correspondant à la région (`https://eu.i.posthog.com`
      ou `https://us.i.posthog.com`)
 3. Renseigner ces valeurs dans `.env.local` (en local) et dans les
@@ -150,11 +160,16 @@ prévue pour être exposée au navigateur (comme un ID Google Analytics).
   | `non_eligible_viewed` | Non-éligible | Affichage de l'écran |
   | `non_eligible_recontact_clicked` | Non-éligible | Clic sur "Être recontacté quand même" |
 
-> **Vie privée** : l'autocapture PostHog est désactivée volontairement
-> (`autocapture: false`). Par défaut, elle enregistre le contenu de tous
-> les champs de formulaire — ce qui aurait exposé nom/email/téléphone du
-> formulaire de contact. Seuls les événements ci-dessus, sans donnée
-> personnelle, sont envoyés à PostHog.
+> **Vie privée** : plusieurs fonctionnalités PostHog sont désactivées
+> volontairement dans `instrumentation-client.ts` — `autocapture` (enregistre
+> par défaut le contenu de tous les champs de formulaire, ce qui aurait
+> exposé nom/email/téléphone du formulaire de contact), `disable_session_recording`
+> (l'enregistrement vidéo de session est **activé par défaut au niveau du
+> projet PostHog lui-même**, indépendamment du code — désactivé ici pour ne
+> jamais rejouer visuellement une session, formulaire inclus), ainsi que
+> `capture_dead_clicks`, `capture_exceptions` et `disable_surveys`, hors
+> périmètre du suivi de parcours demandé. Seuls les événements du tableau
+> ci-dessus, sans donnée personnelle, sont envoyés à PostHog.
 
 ## Déploiement sur Vercel
 
