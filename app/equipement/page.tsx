@@ -6,6 +6,7 @@ import ProgressBar from "@/components/ProgressBar";
 import { SelectableCard } from "@/components/Card";
 import { useSimulator, type Equipement } from "@/context/SimulatorContext";
 import { IconDroplet, IconFlame, IconHelpCircle, IconWind } from "@/components/icons";
+import { AnalyticsEvent, trackEvent } from "@/lib/analytics";
 
 const OPTIONS: {
   value: Equipement;
@@ -45,6 +46,7 @@ export default function EquipementPage() {
 
   function handleSelect(value: Equipement) {
     setEquipement(value);
+    trackEvent(AnalyticsEvent.EquipementSelected, { equipement: value });
     if (value === "autre") {
       router.push("/non-eligible");
     } else {

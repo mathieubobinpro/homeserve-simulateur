@@ -7,6 +7,7 @@ import CTAButton from "@/components/CTAButton";
 import { IconArrowRight, IconCheckCircle } from "@/components/icons";
 import { useSimulator } from "@/context/SimulatorContext";
 import { isValidEmail, isValidFrenchPhone } from "@/lib/validation";
+import { AnalyticsEvent, trackEvent } from "@/lib/analytics";
 
 interface LeadFormProps {
   eligible: boolean;
@@ -69,6 +70,14 @@ export default function LeadForm({
     if (newErrors.nom || newErrors.email || newErrors.telephone) return;
 
     setSubmitting(true);
+    // Pas de nom/email/téléphone dans les propriétés envoyées à PostHog :
+    // seuls les éléments de contexte du parcours sont trackés.
+    const analyticsProperties = {
+      eligible,
+      equipement,
+      ageEquipement,
+      frequenceIntervention,
+    };
     try {
       await fetch("/api/submit-lead", {
         method: "POST",
@@ -84,8 +93,10 @@ export default function LeadForm({
           eligible,
         }),
       });
+      trackEvent(AnalyticsEvent.LeadFormSubmitted, analyticsProperties);
     } catch (error) {
       console.error("[LeadForm] Échec de l'envoi du formulaire", error);
+      trackEvent(AnalyticsEvent.LeadFormSubmitError, analyticsProperties);
     } finally {
       router.push("/merci");
     }

@@ -1,13 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import CTAButton from "@/components/CTAButton";
 import LeadForm from "@/components/LeadForm";
 import { IconArrowRight } from "@/components/icons";
+import { AnalyticsEvent, trackEvent } from "@/lib/analytics";
 
 export default function NonEligiblePage() {
   const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+    trackEvent(AnalyticsEvent.NonEligibleViewed);
+  }, []);
+
+  function handleRecontactClick() {
+    trackEvent(AnalyticsEvent.NonEligibleRecontactClicked);
+    setShowForm(true);
+  }
 
   return (
     <>
@@ -29,7 +39,7 @@ export default function NonEligiblePage() {
           {!showForm && (
             <CTAButton
               variant="secondary"
-              onClick={() => setShowForm(true)}
+              onClick={handleRecontactClick}
               className="sm:w-auto"
             >
               Être recontacté quand même
