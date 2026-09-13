@@ -8,11 +8,23 @@ if (posthogKey) {
     // Capture les changements de route côté client (navigation App Router)
     // comme des $pageview, sans composant dédié.
     capture_pageview: "history_change",
-    // Désactivé volontairement : l'autocapture de PostHog enregistre par
-    // défaut le contenu des champs de formulaire (nom, email, téléphone
-    // sur l'écran /resultat) sans les masquer. Le suivi du parcours passe
-    // uniquement par les événements explicites de lib/analytics.ts.
+    // Tout ce qui suit est désactivé volontairement pour ne garder que le
+    // strict nécessaire au suivi du parcours (pageviews + événements
+    // explicites de lib/analytics.ts) — certaines de ces fonctionnalités
+    // sont activées par défaut au niveau du projet PostHog lui-même
+    // (indépendamment de ce fichier), d'où la nécessité de les couper ici :
+    //
+    // - autocapture : enregistre par défaut le contenu de tous les champs
+    //   de formulaire (nom, email, téléphone sur l'écran /resultat).
+    // - session recording : rejoue visuellement toute la session, avec un
+    //   risque de masquage imparfait des champs sensibles.
+    // - dead clicks / exceptions / surveys : hors périmètre demandé
+    //   (suivi du parcours uniquement).
     autocapture: false,
+    disable_session_recording: true,
+    capture_dead_clicks: false,
+    capture_exceptions: false,
+    disable_surveys: true,
     person_profiles: "identified_only",
   });
 } else if (process.env.NODE_ENV === "development") {
