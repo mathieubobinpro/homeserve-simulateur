@@ -27,6 +27,8 @@ technique nécessaire, et de les exporter en CSV)._
   `sessionStorage` pour survivre à un rafraîchissement de page)
 - [Formspree](https://formspree.io) pour la collecte des leads, appelé
   uniquement côté serveur
+- [PostHog](https://posthog.com) pour le suivi du parcours utilisateur
+  (pageviews + événements par écran)
 
 ## Architecture des routes
 
@@ -56,7 +58,9 @@ Logique de navigation depuis `/equipement` :
   leads.ts                  Client Formspree (envoi des leads)
   offers.ts                 Données des offres (prix, économies, aides) — voir ci-dessous
   validation.ts             Validateurs email / téléphone / code postal
+  analytics.ts              Noms d'événements PostHog + helper trackEvent()
 /public                     Assets statiques
+instrumentation-client.ts   Initialisation PostHog côté client (pageviews auto)
 ```
 
 ## Où modifier les chiffres affichés
@@ -102,6 +106,56 @@ L'envoi des leads se fait exclusivement côté serveur, via
 > loguée côté serveur et le parcours se poursuit normalement vers l'écran
 > de confirmation.
 
+## Configuration PostHog (suivi du parcours utilisateur)
+
+Le suivi analytics est entièrement côté client (`instrumentation-client.ts`),
+sans clé secrète — `NEXT_PUBLIC_POSTHOG_KEY` est une clé de projet publique,
+prévue pour être exposée au navigateur (comme un ID Google Analytics).
+
+1. Créer un compte sur [posthog.com](https://posthog.com) (offre gratuite
+   suffisante pour un POC) et un projet.
+2. Choisir la région d'hébergement du projet — **EU recommandé** pour un
+   produit destiné à des clients français (conformité RGPD). Récupérer :
+   - la **clé de projet** (Project Settings → Project API Key)
+   - l'**URL de l'API** correspondant à la région (`https://eu.i.posthog.com`
+     ou `https://us.i.posthog.com`)
+3. Renseigner ces valeurs dans `.env.local` (en local) et dans les
+   paramètres du projet Vercel (en production) :
+
+   ```
+   NEXT_PUBLIC_POSTHOG_KEY=<clé_de_projet>
+   NEXT_PUBLIC_POSTHOG_HOST=<url_api_posthog>
+   ```
+
+4. Si `NEXT_PUBLIC_POSTHOG_KEY` est absente, le tracking est simplement
+   désactivé (aucune erreur, aucun blocage de l'utilisateur).
+
+### Ce qui est tracké
+
+- Un `$pageview` automatique à chaque changement d'écran (via
+  `capture_pageview: "history_change"`, sans composant dédié).
+- Un événement personnalisé à chaque étape clé du parcours (voir
+  [`lib/analytics.ts`](lib/analytics.ts)) :
+
+  | Événement | Écran | Déclencheur |
+  | --- | --- | --- |
+  | `simulateur_started` | Accueil | Clic sur "Découvrir mes options" |
+  | `equipement_selected` | Équipement | Sélection d'un équipement |
+  | `age_equipement_selected` | Détails | Sélection de l'âge de l'équipement |
+  | `frequence_intervention_selected` | Détails | Sélection de la fréquence de dépannage |
+  | `details_completed` | Détails | Clic sur "Voir mes alternatives" |
+  | `resultat_viewed` | Résultat | Affichage des alternatives |
+  | `lead_form_submitted` | Résultat / Non-éligible | Envoi du formulaire réussi |
+  | `lead_form_submit_error` | Résultat / Non-éligible | Échec réseau de l'envoi du formulaire |
+  | `non_eligible_viewed` | Non-éligible | Affichage de l'écran |
+  | `non_eligible_recontact_clicked` | Non-éligible | Clic sur "Être recontacté quand même" |
+
+> **Vie privée** : l'autocapture PostHog est désactivée volontairement
+> (`autocapture: false`). Par défaut, elle enregistre le contenu de tous
+> les champs de formulaire — ce qui aurait exposé nom/email/téléphone du
+> formulaire de contact. Seuls les événements ci-dessus, sans donnée
+> personnelle, sont envoyés à PostHog.
+
 ## Déploiement sur Vercel
 
 Le projet `homeserve-simulateur` est déjà créé sur Vercel et déployé en
@@ -119,7 +173,8 @@ Pour repartir de zéro sur un autre compte Vercel :
 2. Importer le dépôt dans [Vercel](https://vercel.com/new) — Next.js est
    détecté automatiquement, aucune configuration supplémentaire n'est
    nécessaire.
-3. Renseigner la variable d'environnement `FORMSPREE_FORM_ID` dans les
+3. Renseigner les variables d'environnement `FORMSPREE_FORM_ID`,
+   `NEXT_PUBLIC_POSTHOG_KEY` et `NEXT_PUBLIC_POSTHOG_HOST` dans les
    paramètres du projet Vercel (Settings → Environment Variables).
 4. Déployer.
 

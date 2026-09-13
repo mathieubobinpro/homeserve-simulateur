@@ -11,6 +11,7 @@ import OfferCarousel from "@/components/OfferCarousel";
 import LeadForm from "@/components/LeadForm";
 import { useSimulator } from "@/context/SimulatorContext";
 import { getOffersForEquipement, getResultTitle, type Offer } from "@/lib/offers";
+import { AnalyticsEvent, trackEvent } from "@/lib/analytics";
 
 function OfferCard({ offer }: { offer: Offer }) {
   const highlighted = Boolean(offer.badge);
@@ -70,7 +71,13 @@ export default function ResultatPage() {
   useEffect(() => {
     if (!equipement || !ageEquipement || !frequenceIntervention) {
       router.replace("/equipement");
+      return;
     }
+    trackEvent(AnalyticsEvent.ResultatViewed, {
+      equipement,
+      ageEquipement,
+      frequenceIntervention,
+    });
   }, [equipement, ageEquipement, frequenceIntervention, router]);
 
   const offers = getOffersForEquipement(equipement);

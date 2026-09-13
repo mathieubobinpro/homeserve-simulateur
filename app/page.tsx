@@ -6,9 +6,15 @@ import CTAButton from "@/components/CTAButton";
 import LegalFooter from "@/components/LegalFooter";
 import { ReassuranceBadges } from "@/components/Badge";
 import { IconArrowRight, IconFlame } from "@/components/icons";
+import { AnalyticsEvent, trackEvent } from "@/lib/analytics";
 
 export default function AccueilPage() {
   const router = useRouter();
+
+  function handleStart() {
+    trackEvent(AnalyticsEvent.SimulateurStarted);
+    router.push("/equipement");
+  }
 
   return (
     <>
@@ -37,10 +43,7 @@ export default function AccueilPage() {
             />
 
             <div className="flex flex-col gap-3.5 sm:mt-2 sm:flex-row sm:items-center sm:gap-5">
-              <CTAButton
-                onClick={() => router.push("/equipement")}
-                className="sm:w-auto"
-              >
+              <CTAButton onClick={handleStart} className="sm:w-auto">
                 Découvrir mes options
                 <IconArrowRight size={19} />
               </CTAButton>

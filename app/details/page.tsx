@@ -13,6 +13,7 @@ import {
   type FrequenceIntervention,
 } from "@/context/SimulatorContext";
 import { isValidPostalCode } from "@/lib/validation";
+import { AnalyticsEvent, trackEvent } from "@/lib/analytics";
 
 const AGE_OPTIONS: { value: AgeEquipement; label: string }[] = [
   { value: "moins_10", label: "Moins de 10 ans" },
@@ -46,6 +47,27 @@ export default function DetailsPage() {
   const isComplete =
     Boolean(ageEquipement) && postalValid && Boolean(frequenceIntervention);
 
+  function handleAgeSelect(value: AgeEquipement) {
+    setAgeEquipement(value);
+    trackEvent(AnalyticsEvent.AgeEquipementSelected, { ageEquipement: value });
+  }
+
+  function handleFrequenceSelect(value: FrequenceIntervention) {
+    setFrequenceIntervention(value);
+    trackEvent(AnalyticsEvent.FrequenceInterventionSelected, {
+      frequenceIntervention: value,
+    });
+  }
+
+  function handleSubmit() {
+    trackEvent(AnalyticsEvent.DetailsCompleted, {
+      equipement,
+      ageEquipement,
+      frequenceIntervention,
+    });
+    router.push("/resultat");
+  }
+
   return (
     <>
       <Header showBack />
@@ -72,7 +94,7 @@ export default function DetailsPage() {
                   <button
                     type="button"
                     key={option.value}
-                    onClick={() => setAgeEquipement(option.value)}
+                    onClick={() => handleAgeSelect(option.value)}
                     className={`min-h-[52px] rounded-2xl border-2 px-4 py-3.5 text-left text-base font-semibold text-ink transition-colors sm:min-h-[60px] sm:text-center ${
                       ageEquipement === option.value
                         ? "border-brand-red bg-brand-red-light"
@@ -95,7 +117,7 @@ export default function DetailsPage() {
                   <button
                     type="button"
                     key={option.value}
-                    onClick={() => setFrequenceIntervention(option.value)}
+                    onClick={() => handleFrequenceSelect(option.value)}
                     className={`min-h-[52px] rounded-2xl border-2 px-4 py-3.5 text-left text-base font-semibold text-ink transition-colors sm:min-h-[60px] sm:text-center ${
                       frequenceIntervention === option.value
                         ? "border-brand-red bg-brand-red-light"
@@ -138,7 +160,7 @@ export default function DetailsPage() {
 
             <CTAButton
               disabled={!isComplete}
-              onClick={() => router.push("/resultat")}
+              onClick={handleSubmit}
               className="sm:w-auto"
             >
               Voir mes alternatives
